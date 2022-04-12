@@ -1,0 +1,58 @@
+version: "3.7"
+
+services:
+  docker-nginx:
+    image: nginx
+    container_name: docker-nginx
+    expose:
+      - 80
+      - 443
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      normal:
+        aliases:
+          - docker-nginx
+    volumes:
+      - './www:/var/www/html'
+      - './nginx:/etc/nginx'
+
+  docker-mysql:
+    image: mysql:5.7
+    container_name: docker-mysql
+    expose:
+      - 3306
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - './mysql/data:/var/lib/mysql'
+    ports:
+      - "3307:3306"
+    networks:
+      normal:
+        aliases:
+          - docker-mysql
+
+  docker-php:
+    depends_on:
+      - docker-nginx
+      - docker-mysql
+    container_name: docker-php
+    image: schoolbox/php74
+    restart: always
+    volumes:
+      - './www:/var/www/html'
+    networks:
+      normal:
+        aliases:
+          - master
+#    command:
+#      - /bin/sh
+#      - -c
+#      - |
+#        python3 /workspace/car/igmain.py
+networks:
+  normal:
+    driver: bridge
