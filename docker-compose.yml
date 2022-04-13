@@ -2,6 +2,8 @@ version: "3.7"
 
 services:
   docker-nginx:
+    depends_on:
+      - docker-php
     image: nginx
     container_name: docker-nginx
     expose:
@@ -19,13 +21,14 @@ services:
       - './nginx:/etc/nginx'
 
   docker-mysql:
-    image: mysql:5.7
+    image: mysql:8.0.28
     container_name: docker-mysql
     expose:
       - 3306
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
+#      MYSQL_DATABASE: test
     volumes:
       - './mysql/data:/var/lib/mysql'
     ports:
@@ -35,12 +38,27 @@ services:
         aliases:
           - docker-mysql
 
+  docker-redis:
+    image: redis
+    container_name: docker-redis
+    expose:
+      - 6379
+    restart: always
+    volumes:
+#        - ./redis/redis.conf:/usr/local/etc/redis/redis.conf:rw
+        - ./redis/data:/data:rw
+    ports:
+      - "6380:6379"
+    networks:
+      normal:
+        aliases:
+          - docker-redis
+
   docker-php:
     depends_on:
-      - docker-nginx
       - docker-mysql
     container_name: docker-php
-    image: schoolbox/php74
+    build: ./php/.
     restart: always
     volumes:
       - './www:/var/www/html'
@@ -52,7 +70,7 @@ services:
 #      - /bin/sh
 #      - -c
 #      - |
-#        python3 /workspace/car/igmain.py
+#        python3 *.py
 networks:
   normal:
     driver: bridge
