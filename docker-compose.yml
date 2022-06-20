@@ -61,7 +61,9 @@ services:
     build: ./php/.
     restart: always
     volumes:
-      - './www:/var/www/html'
+      - ./www:/var/www/html
+      - ./php/fpm/php.ini:/etc/php/7.4/fpm/php.ini
+#      - ./php/log/xdebug.log:/var/www/log/xdebug.log:rw
     networks:
       normal:
         aliases:
